@@ -1,0 +1,62 @@
+name: Hermes Client Build
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-armbian:
+    runs-on: ubuntu-22.04
+    steps:
+      # 1. 检出 Armbian 构建仓库
+      - name: Checkout Armbian build
+        uses: actions/checkout@v4
+        with:
+          repository: armbian/build
+          path: build
+
+      # 2. 检出你的 Rust 源码
+      - name: Checkout Rust app
+        uses: actions/checkout@v4
+        with:
+          repository: Hermes-Language/e1_client_rust
+          path: build/userpatches/rust-app
+
+      - name: Install aarch64-linux-gnu-gcc
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc-aarch64-linux-gnu device-tree-compiler
+
+      - name: Compile Rust static binary
+        run: |
+          mkdir -p build/userpatches/overlay/usr/local/bin
+          cd build/userpatches/rust-app
+          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+          source ~/.cargo/env
+          rustup target add nightly-aarch64-unknown-linux-gnu
+          RUSTFLAGS="-C linker=aarch64-linux-gnu-gcc -C target-feature=+crt-static" \
+            cargo build --release --target aarch64-unknown-linux-gnu
+          cp target/aarch64-unknown-linux-gnu/release/your-app \
+             ../overlay/usr/local/bin/
+
+      - name: Generate DTB
+        run: |
+          # 把 extracted.dts 放在这里，生成同名 dtb
+          dtc -I dts -O dtb -o build/arch/arm64/boot/dts/rockchip/rk3308-evb-dmic-pdm-v13.dtb \
+              build/userpatches/extracted.dts || echo "No custom DTB provided"
+
+      - name: Build Armbian image
+        run: |
+          cd build
+          ./compile.sh \
+            BOARD=rk3308 \
+            BRANCH=current \
+            RELEASE=bookworm \
+            BUILD_MINIMAL=yes \
+            BUILD_DESKTOP=no \
+            COMPRESS_OUTPUTIMAGE=sha,img 
+
+      - name: Upload image
+        uses: actions/upload-artifact@v4
+        with:
+          name: armbian-rk3308-rust
+          path: build/output/images/*.img
