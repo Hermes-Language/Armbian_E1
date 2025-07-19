@@ -19,11 +19,14 @@ jobs:
 
       - name: Setup userpatches structure
         run: |
-          # 将项目的userpatches复制到Armbian构建目录
-          cp -r userpatches/* build/userpatches/
-          
-          # 创建正确的userpatches目录结构
+          # 首先创建Armbian构建目录的userpatches结构
           mkdir -p build/userpatches/config/boards
+          mkdir -p build/userpatches/overlay
+          
+          # 将项目的userpatches内容复制到Armbian构建目录
+          if [ -d "userpatches" ]; then
+            cp -r userpatches/* build/userpatches/
+          fi
           
           # 创建Sogou E1板级配置文件
           cat > build/userpatches/config/boards/sogou_e1.conf << 'EOL'
