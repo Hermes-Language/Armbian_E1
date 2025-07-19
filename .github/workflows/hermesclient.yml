@@ -5,7 +5,7 @@ on:
 
 jobs:
   build-armbian:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
@@ -33,6 +33,7 @@ jobs:
             BUILD_MINIMAL=yes \
             BUILD_DESKTOP=no \
             COMPRESS_OUTPUTIMAGE=sha,img \
+            KERNEL_COMPILER=clang \
             KERNEL_CONFIGURE=no
 
       - name: Upload image
