@@ -12,7 +12,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: armbian/build
-          path: build
+          path: .
 
       - name: Install device-tree-compiler
         run: |
@@ -22,8 +22,8 @@ jobs:
       - name: Generate DTB
         run: |
           # 把 extracted.dts 放在这里，生成同名 dtb
-          dtc -I dts -O dtb -o build/arch/arm64/boot/dts/rockchip/rk3308-evb-dmic-pdm-v13.dtb \
-              build/userpatches/extracted.dts || echo "No custom DTB provided"
+          dtc -I dts -O dtb -o arch/arm64/boot/dts/rockchip/rk3308-evb-dmic-pdm-v13.dtb \
+              userpatches/extracted.dts || echo "No custom DTB provided"
 
       - name: Build Armbian image
         run: |
@@ -39,5 +39,5 @@ jobs:
       - name: Upload image
         uses: actions/upload-artifact@v4
         with:
-          name: armbian-rk3308-rust
-          path: build/output/images/*.img
+          name: armbian-rk3308-e1
+          path: output/images/*.img
