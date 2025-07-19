@@ -20,19 +20,36 @@ jobs:
       - name: Build Armbian image
         run: |
           cd build
-          # Create required directory structure
+          
+          # 创建板级配置目录
+          mkdir -p ../userpatches/config/board/sogou_e1
+          
+          # 创建板级配置文件
+          cat > ../userpatches/config/board/sogou_e1/sogou_e1.conf << 'EOL'
+          # Sogou E1 board configuration
+          BOARD_NAME="Sogou E1"
+          BOARDFAMILY="rockchip64"
+          BOOTCONFIG="rk3308-evb_defconfig"
+          KERNEL_TARGET="current"
+          BOOT_FDT_FILE="rockchip/sogou_e1.dtb"
+          EOL
+          
+          # 创建设备树输出目录
           mkdir -p arch/arm64/boot/dts/rockchip
           
-          # Check for custom DTS file and build DTB
+          # 检查DTS源文件并生成DTB
           if [ -f ../userpatches/extracted.dts ]; then
-            echo "Building custom DTB from extracted.dts"
-            dtc -I dts -O dtb -o arch/arm64/boot/dts/rockchip/sogou_e1.dtb \
-                ../userpatches/extracted.dts || { echo "DTB build failed"; exit 1; }
+            cp ../userpatches/extracted.dts ../userpatches/config/board/sogou_e1/sogou_e1.dts
+            
+            cd ../userpatches/config/board/sogou_e1
+            dtc -I dts -O dtb -o ../../../../../../build/arch/arm64/boot/dts/rockchip/sogou_e1.dtb \
+                sogou_e1.dts || { echo "设备树编译失败"; exit 1; }
+            cd ../../../../../../build
           else
-            echo "No custom DTS file found, using default configuration"
+            echo "未找到DTS源文件，使用默认配置"
           fi
           
-          # Run Armbian compile with proper parameters
+          # 执行Armbian编译
           ./compile.sh \
             BOARD=sogou_e1 \
             BRANCH=current \
@@ -41,7 +58,7 @@ jobs:
             BUILD_DESKTOP=no \
             COMPRESS_OUTPUTIMAGE=sha,img \
             KERNEL_COMPILER=clang \
-            KERNEL_CONFIGURE=no
+            KERNEL_CONFIGURE=no 
 
       - name: Upload image
         uses: actions/upload-artifact@v4
