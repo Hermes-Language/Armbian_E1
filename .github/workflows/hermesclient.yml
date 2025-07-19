@@ -35,7 +35,8 @@ jobs:
             RELEASE=bookworm \
             BUILD_MINIMAL=yes \
             BUILD_DESKTOP=no \
-            COMPRESS_OUTPUTIMAGE=sha,img 
+            COMPRESS_OUTPUTIMAGE=sha,img \
+            KERNEL_CONFIGURE=no
 
       - name: Upload image
         uses: actions/upload-artifact@v4
