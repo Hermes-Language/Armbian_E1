@@ -28,7 +28,7 @@ jobs:
       - name: Move Folder
         run: |
           cd build
-          mv userpatches build
+          mv userpatch build
 
       - name: Generate DTB
         run: |
