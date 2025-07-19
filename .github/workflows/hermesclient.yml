@@ -50,7 +50,7 @@ jobs:
           # Sogou E1 board configuration
           BOARD_NAME="Sogou E1"
           BOARDFAMILY="rockchip64"
-          BOOTCONFIG="rk3308-evb_defconfig"
+          BOOTCONFIG="rk3308_defconfig"
           KERNEL_TARGET="current"
           BOOT_FDT_FILE="rockchip/rk3308-sogou-e1.dtb"
           SERIALCON="ttyS2:1500000"
@@ -74,6 +74,18 @@ jobs:
             echo "未找到自定义DTS文件，将使用RK3308默认配置"
           fi
 
+      - name: Check available defconfigs
+        run: |
+          cd build
+          echo "检查可用的RK3308相关defconfig文件..."
+          # 检查不同位置的defconfig文件
+          find . -name "*rk3308*defconfig" -type f 2>/dev/null || echo "未找到rk3308相关defconfig"
+          find . -name "*3308*defconfig" -type f 2>/dev/null || echo "未找到3308相关defconfig"
+          
+          # 如果找不到RK3308专用配置，列出所有rockchip相关配置
+          echo "所有rockchip相关defconfig文件:"
+          find . -name "*rockchip*defconfig" -type f 2>/dev/null | head -10 || echo "未找到rockchip相关defconfig"
+
       - name: Build Armbian image
         run: |
           cd build
@@ -87,17 +99,7 @@ jobs:
             BUILD_MINIMAL=yes \
             BUILD_DESKTOP=no \
             KERNEL_CONFIGURE=no \
-            COMPRESS_OUTPUTIMAGE=sha,img \
-            USE_CCACHE=no || \
-          ./compile.sh docker \
-            BOARD=sogou_e1 \
-            BRANCH=current \
-            RELEASE=bookworm \
-            BUILD_MINIMAL=yes \
-            BUILD_DESKTOP=no \
-            KERNEL_CONFIGURE=no \
-            COMPRESS_OUTPUTIMAGE=sha,img \
-            USE_CCACHE=no 
+            COMPRESS_OUTPUTIMAGE=sha,img 
 
       - name: Upload image
         uses: actions/upload-artifact@v4
