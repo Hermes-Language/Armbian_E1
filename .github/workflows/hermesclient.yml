@@ -20,14 +20,14 @@ jobs:
       - name: Generate DTB
         run: |
           # 把 extracted.dts 放在这里，生成同名 dtb
-          dtc -I dts -O dtb -o build/arch/arm64/boot/dts/rockchip/rk3308-evb-dmic-pdm-v13.dtb \
+          dtc -I dts -O dtb -o build/arch/arm64/boot/dts/rockchip/sogou_e1.dtb \
               userpatches/extracted.dts || echo "No custom DTB provided"
 
       - name: Build Armbian image
         run: |
           cd build
           ./compile.sh \
-            BOARD=rk3308-evb-dmic-pdm-v13 \
+            BOARD=sogou_e1 \
             BRANCH=current \
             RELEASE=bookworm \
             BUILD_MINIMAL=yes \
