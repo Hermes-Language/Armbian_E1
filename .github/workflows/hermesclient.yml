@@ -58,8 +58,8 @@ jobs:
         run: |
           cd build
           
-          # 执行Armbian编译 - 使用Docker方式以确保环境一致性
-          ./compile.sh docker \
+          # 执行Armbian编译 - 直接编译，不使用Docker
+          ./compile.sh \
             BOARD=sogou_e1 \
             BRANCH=current \
             RELEASE=bookworm \
