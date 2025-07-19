@@ -15,8 +15,28 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y device-tree-compiler
+          sudo apt-get install -y \
+            device-tree-compiler \
+            qemu-user-static \
+            binfmt-support \
+            qemu-system-arm \
+            qemu-efi-aarch64 \
+            qemu-utils
+          
+          # 启用 binfmt 支持以进行交叉编译
+          sudo systemctl restart systemd-binfmt
 
+      - name: Setup QEMU for cross compilation
+        run: |
+          # 确保 QEMU 静态链接支持正确安装
+          sudo apt-get install -y qemu-user-static
+          
+          # 手动注册binfmt处理器
+          echo ':qemu-aarch64:M::\x7fELF\x02\x01\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x02\x00\xb7\x00:\xff\xff\xff\xff\xff\xff\xff\x00\xff\xff\xff\xff\xff\xff\xff\xff\xfe\xff\xff\xff:/usr/bin/qemu-aarch64-static:F' | sudo tee /proc/sys/fs/binfmt_misc/register
+          
+          # 验证 QEMU 支持
+          which qemu-aarch64-static || echo "QEMU aarch64 not found"
+          
       - name: Setup userpatches structure
         run: |
           # 首先创建Armbian构建目录的userpatches结构
@@ -61,7 +81,8 @@ jobs:
         run: |
           cd build
           
-          # 执行Armbian编译 - 直接编译，不使用Docker
+          # 尝试使用更兼容的构建方式
+          # 如果原生交叉编译失败，使用Docker方式
           ./compile.sh \
             BOARD=sogou_e1 \
             BRANCH=current \
@@ -69,7 +90,17 @@ jobs:
             BUILD_MINIMAL=yes \
             BUILD_DESKTOP=no \
             KERNEL_CONFIGURE=no \
-            COMPRESS_OUTPUTIMAGE=sha,img 
+            COMPRESS_OUTPUTIMAGE=sha,img \
+            USE_CCACHE=no || \
+          ./compile.sh docker \
+            BOARD=sogou_e1 \
+            BRANCH=current \
+            RELEASE=bookworm \
+            BUILD_MINIMAL=yes \
+            BUILD_DESKTOP=no \
+            KERNEL_CONFIGURE=no \
+            COMPRESS_OUTPUTIMAGE=sha,img \
+            USE_CCACHE=no 
 
       - name: Upload image
         uses: actions/upload-artifact@v4
