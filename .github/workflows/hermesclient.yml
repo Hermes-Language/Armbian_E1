@@ -7,7 +7,8 @@ jobs:
   build-armbian:
     runs-on: ubuntu-22.04
     steps:
-      # 1. 检出 Armbian 构建仓库
+      - uses: actions/checkout@v4
+
       - name: Checkout Armbian build
         uses: actions/checkout@v4
         with:
