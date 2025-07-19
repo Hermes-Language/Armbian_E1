@@ -14,29 +14,10 @@ jobs:
           repository: armbian/build
           path: build
 
-      # 2. 检出你的 Rust 源码
-      - name: Checkout Rust app
-        uses: actions/checkout@v4
-        with:
-          repository: Hermes-Language/e1_client_rust
-          path: build/userpatches/rust-app
-
-      - name: Install aarch64-linux-gnu-gcc
+      - name: Install device-tree-compiler
         run: |
           sudo apt-get update
-          sudo apt-get install -y gcc-aarch64-linux-gnu device-tree-compiler
-
-      - name: Compile Rust static binary
-        run: |
-          mkdir -p build/userpatches/overlay/usr/local/bin
-          cd build/userpatches/rust-app
-          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-          source ~/.cargo/env
-          rustup target add nightly-aarch64-unknown-linux-gnu
-          RUSTFLAGS="-C linker=aarch64-linux-gnu-gcc -C target-feature=+crt-static" \
-            cargo build --release --target aarch64-unknown-linux-gnu
-          cp target/aarch64-unknown-linux-gnu/release/your-app \
-             ../overlay/usr/local/bin/
+          sudo apt-get install -y device-tree-compiler
 
       - name: Generate DTB
         run: |
