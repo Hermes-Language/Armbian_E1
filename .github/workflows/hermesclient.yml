@@ -27,7 +27,7 @@ jobs:
         run: |
           cd build
           ./compile.sh \
-            BOARD=rk3308 \
+            BOARD=rk3308-evb-dmic-pdm-v13 \
             BRANCH=current \
             RELEASE=bookworm \
             BUILD_MINIMAL=yes \
