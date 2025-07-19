@@ -45,12 +45,12 @@ jobs:
             cp -r userpatches/* build/userpatches/
           fi
           
-          # 创建Sogou E1板级配置文件
+          # 创建Sogou E1板级配置文件 - 基于现有的RK3308配置
           cat > build/userpatches/config/boards/sogou_e1.conf << 'EOL'
           # Sogou E1 board configuration
           BOARD_NAME="Sogou E1"
           BOARDFAMILY="rockchip64"
-          BOOTCONFIG="rk3308_defconfig"
+          BOOTCONFIG="sakurapi-rk3308b_defconfig"
           KERNEL_TARGET="current"
           BOOT_FDT_FILE="rockchip/rk3308-sogou-e1.dtb"
           SERIALCON="ttyS2:1500000"
@@ -66,25 +66,29 @@ jobs:
           if [ -f userpatches/extracted.dts ]; then
             echo "发现自定义设备树文件，正在处理..."
             
-            # 确保设备树文件格式正确
-            cp userpatches/extracted.dts build/userpatches/rk3308-sogou-e1.dts
+            # 创建设备树文件到正确位置，以便Armbian构建系统识别
+            mkdir -p build/userpatches/kernel/rockchip64-current/arch/arm64/boot/dts/rockchip
+            cp userpatches/extracted.dts build/userpatches/kernel/rockchip64-current/arch/arm64/boot/dts/rockchip/rk3308-sogou-e1.dts
             
             echo "自定义设备树已准备完成，Armbian将自动处理DTB编译"
           else
             echo "未找到自定义DTS文件，将使用RK3308默认配置"
           fi
 
-      - name: Check available defconfigs
+      - name: Check available defconfigs and boards
         run: |
           cd build
-          echo "检查可用的RK3308相关defconfig文件..."
-          # 检查不同位置的defconfig文件
-          find . -name "*rk3308*defconfig" -type f 2>/dev/null || echo "未找到rk3308相关defconfig"
-          find . -name "*3308*defconfig" -type f 2>/dev/null || echo "未找到3308相关defconfig"
+          echo "=== 检查可用的defconfig文件 ==="
+          echo "U-Boot defconfig文件:"
+          find . -name "*defconfig" -path "*/u-boot/*" | grep -E "(rk33|rockchip|evb)" | head -10 || echo "未找到u-boot defconfig"
           
-          # 如果找不到RK3308专用配置，列出所有rockchip相关配置
-          echo "所有rockchip相关defconfig文件:"
-          find . -name "*rockchip*defconfig" -type f 2>/dev/null | head -10 || echo "未找到rockchip相关defconfig"
+          echo -e "\n=== 检查Armbian现有板级配置 ==="
+          echo "现有的rockchip64相关板级配置:"
+          find config/boards -name "*.conf" | grep -v ".csc\|.wip\|.eos" | head -10
+          
+          echo -e "\n=== 检查设备树文件 ==="
+          echo "RK33xx设备树文件:"
+          find . -name "rk33*.dts*" | head -10 || echo "未找到设备树文件"
 
       - name: Build Armbian image
         run: |
