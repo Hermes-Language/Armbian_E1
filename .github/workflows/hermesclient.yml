@@ -38,6 +38,9 @@ jobs:
           BOOT_FDT_FILE="rockchip/rk3308-sogou-e1.dtb"
           SERIALCON="ttyS2:1500000"
           HAS_VIDEO_OUTPUT="yes"
+          
+          # 音频设备相关包
+          PACKAGE_LIST_BOARD="alsa-utils firmware-realtek firmware-brcm80211 wireless-regdb wpasupplicant hostapd iw"
           EOL
 
       - name: Setup device tree
