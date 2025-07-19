@@ -12,56 +12,63 @@ jobs:
       - name: Fetch Armbian Build
         run: git clone https://github.com/armbian/build
 
-      - name: Install device-tree-compiler
+      - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y device-tree-compiler
+          sudo apt-get install -y device-tree-compiler docker.io
 
-      - name: Build Armbian image
+      - name: Setup userpatches structure
         run: |
-          cd build
+          # 将项目的userpatches复制到Armbian构建目录
+          cp -r userpatches/* build/userpatches/
           
-          # 创建板级配置目录
-          mkdir -p ../userpatches/config/board/sogou_e1
+          # 创建正确的userpatches目录结构
+          mkdir -p build/userpatches/config/boards
           
-          # 创建板级配置文件
-          cat > ../userpatches/config/board/sogou_e1/sogou_e1.conf << 'EOL'
+          # 创建Sogou E1板级配置文件
+          cat > build/userpatches/config/boards/sogou_e1.conf << 'EOL'
           # Sogou E1 board configuration
           BOARD_NAME="Sogou E1"
           BOARDFAMILY="rockchip64"
           BOOTCONFIG="rk3308-evb_defconfig"
           KERNEL_TARGET="current"
-          BOOT_FDT_FILE="rockchip/sogou_e1.dtb"
+          BOOT_FDT_FILE="rockchip/rk3308-sogou-e1.dtb"
+          SERIALCON="ttyS2:1500000"
+          HAS_VIDEO_OUTPUT="yes"
           EOL
-          
-          # 创建设备树输出目录
-          mkdir -p arch/arm64/boot/dts/rockchip
-          
-          # 检查DTS源文件并生成DTB
-          if [ -f ../userpatches/extracted.dts ]; then
-            cp ../userpatches/extracted.dts ../userpatches/config/board/sogou_e1/sogou_e1.dts
+
+      - name: Setup device tree
+        run: |
+          # 如果存在自定义设备树文件，则处理设备树
+          if [ -f userpatches/extracted.dts ]; then
+            echo "发现自定义设备树文件，正在处理..."
             
-            cd ../userpatches/config/board/sogou_e1
-            dtc -I dts -O dtb -o arch/arm64/boot/dts/rockchip/sogou_e1.dtb \
-                sogou_e1.dts || { echo "设备树编译失败"; exit 1; }
-            cd ../../../../build
+            # 确保设备树文件格式正确
+            cp userpatches/extracted.dts build/userpatches/rk3308-sogou-e1.dts
+            
+            echo "自定义设备树已准备完成，Armbian将自动处理DTB编译"
           else
-            echo "未找到DTS源文件，使用默认配置"
+            echo "未找到自定义DTS文件，将使用RK3308默认配置"
           fi
+
+      - name: Build Armbian image
+        run: |
+          cd build
           
-          # 执行Armbian编译
-          ./compile.sh \
+          # 执行Armbian编译 - 使用Docker方式以确保环境一致性
+          ./compile.sh docker \
             BOARD=sogou_e1 \
             BRANCH=current \
             RELEASE=bookworm \
             BUILD_MINIMAL=yes \
             BUILD_DESKTOP=no \
-            COMPRESS_OUTPUTIMAGE=sha,img \
-            KERNEL_COMPILER=clang \
-            KERNEL_CONFIGURE=no 
+            KERNEL_CONFIGURE=no \
+            COMPRESS_OUTPUTIMAGE=sha,img 
 
       - name: Upload image
         uses: actions/upload-artifact@v4
         with:
           name: armbian-rk3308-e1
-          path: build/output/images/*.img
+          path: |
+            build/output/images/*.img
+            build/output/images/*.img.sha
