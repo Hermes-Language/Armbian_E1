@@ -42,9 +42,9 @@ jobs:
             cp ../userpatches/extracted.dts ../userpatches/config/board/sogou_e1/sogou_e1.dts
             
             cd ../userpatches/config/board/sogou_e1
-            dtc -I dts -O dtb -o ../../../../../../build/arch/arm64/boot/dts/rockchip/sogou_e1.dtb \
+            dtc -I dts -O dtb -o arch/arm64/boot/dts/rockchip/sogou_e1.dtb \
                 sogou_e1.dts || { echo "设备树编译失败"; exit 1; }
-            cd ../../../../../../build
+            cd ../../../../build
           else
             echo "未找到DTS源文件，使用默认配置"
           fi
