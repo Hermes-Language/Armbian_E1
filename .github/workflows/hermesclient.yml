@@ -30,10 +30,7 @@ jobs:
         run: |
           # 确保 QEMU 静态链接支持正确安装
           sudo apt-get install -y qemu-user-static
-          
-          # 手动注册binfmt处理器
-          echo ':qemu-aarch64:M::\x7fELF\x02\x01\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x02\x00\xb7\x00:\xff\xff\xff\xff\xff\xff\xff\x00\xff\xff\xff\xff\xff\xff\xff\xff\xfe\xff\xff\xff:/usr/bin/qemu-aarch64-static:F' | sudo tee /proc/sys/fs/binfmt_misc/register
-          
+
           # 验证 QEMU 支持
           which qemu-aarch64-static || echo "QEMU aarch64 not found"
           
