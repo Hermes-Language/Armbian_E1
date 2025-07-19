@@ -20,12 +20,14 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y device-tree-compiler
 
+      - name: Print
+        run: ls -la
 
       - name: Generate DTB
         run: |
           # 把 extracted.dts 放在这里，生成同名 dtb
           dtc -I dts -O dtb -o arch/arm64/boot/dts/rockchip/rk3308-evb-dmic-pdm-v13.dtb \
-              userpatch/extracted.dts || echo "No custom DTB provided"
+              userpatch\extracted.dts || echo "No custom DTB provided"
 
       - name: Build Armbian image
         run: |
