@@ -25,11 +25,10 @@ jobs:
         run: |
           # 把 extracted.dts 放在这里，生成同名 dtb
           dtc -I dts -O dtb -o arch/arm64/boot/dts/rockchip/rk3308-evb-dmic-pdm-v13.dtb \
-              userpatches/extracted.dts || echo "No custom DTB provided"
+              userpatch/extracted.dts || echo "No custom DTB provided"
 
       - name: Build Armbian image
         run: |
-          cd build
           ./compile.sh \
             BOARD=rk3308 \
             BRANCH=current \
