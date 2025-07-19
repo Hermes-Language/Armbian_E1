@@ -15,7 +15,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y device-tree-compiler docker.io
+          sudo apt-get install -y device-tree-compiler
 
       - name: Setup userpatches structure
         run: |
