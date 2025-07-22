@@ -1,0 +1,46 @@
+# Build directories
+build/
+*-build/
+*-debug/
+*-release/
+
+# Qt Creator user files
+*.user
+*.user.*
+
+# CMake
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+
+# Compiled executables
+E1Recorder
+
+# Qt MOC files
+moc_*.cpp
+moc_*.h
+qrc_*.cpp
+
+# Libraries
+*.so
+*.so.*
+*.a
+*.lib
+*.dll
+
+# Object files
+*.o
+*.obj
+
+# Temporary files
+*~
+*.swp
+*.tmp
+
+# IDE files
+.vscode/
+.idea/
+
+# Debug symbols
+*.pdb 

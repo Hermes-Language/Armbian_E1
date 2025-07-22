@@ -1,0 +1,12 @@
+<RCC>
+    <qresource prefix="/">
+        <file>../qml/Main.qml</file>
+        <file>../qml/ModernRecordingScreen.qml</file>
+        <file>../qml/DeviceSettingsScenarioPage.qml</file>
+        <file>../qml/FileListScreen.qml</file>
+        <file>../qml/FileListItem.qml</file>
+        <file>../qml/CircularProgress.qml</file>
+        <file>../qml/MockStorageManager.qml</file>
+        <file>../qml/MockAudioRecorder.qml</file>
+    </qresource>
+</RCC> 
